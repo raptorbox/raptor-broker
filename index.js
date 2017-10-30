@@ -11,9 +11,6 @@ const mq = mongodb(config.mongodb.mq)
 const httpServer = require('http').createServer()
 const ws = require('websocket-stream')
 
-var port = 1883
-var wsPort = 8888
-
 const api = new Raptor(config.raptor)
 
 const getRaptor = () => {
@@ -21,6 +18,11 @@ const getRaptor = () => {
         .then(() => {
             return api
         })
+}
+
+const isLocalUser = (credentials) => {
+    return (config.raptor.username === credentials.username
+        && config.raptor.password === credentials.password)
 }
 
 const isAdmin = (u) => {
@@ -47,13 +49,14 @@ const checkTopic = (client, topic) => {
         return Promise.reject(new Error('Raptor instance not available'))
     }
 
-    return client.raptor.Auth().login().then(() => {
+    if(isLocalUser(client.raptor.getConfig()) ||
+        isAdmin(client.raptor.Auth().getUser())
+    ) {
+        logger.info('Local user topic allowed')
+        return Promise.resolve()
+    }
 
-        if(client.raptor.Auth().getUser().username === config.raptor.username &&
-            isAdmin(client.raptor.Auth().getUser())
-        ) {
-            return Promise.resolve()
-        }
+    return client.raptor.Auth().login().then(() => {
 
         logger.info('Validating topic %s', topic)
 
@@ -95,6 +98,8 @@ const main = function() {
 
     broker.authenticate = function (client, username, password, callback) {
 
+        password = password.toString()
+
         logger.info('authenticate: %s:%s', username, password)
 
         if((username == null || username.length === 0) || (password == null || password.length === 0)) {
@@ -102,10 +107,10 @@ const main = function() {
             return callback(null, false)
         }
 
-        if (config.raptor.username === username
-            && config.raptor.password === password ) {
+        if (isLocalUser({username, password})) {
+            logger.info('Local user login')
             client.raptor = api
-            return Promise.resolve()
+            return callback(null, true)
         }
 
         return getRaptor()
@@ -114,7 +119,7 @@ const main = function() {
                 if (username.length <= 3) {
                     logger.info('Token login')
                     const r = new Raptor({
-                        url, token: password.toString()
+                        url, token: password
                     })
                     return r.Auth().login()
                         .then(() => {
@@ -125,7 +130,7 @@ const main = function() {
                     logger.info('Username and password login')
                     const r = new Raptor({
                         url, username,
-                        password: password.toString()
+                        password: password
                     })
                     return r.Auth().login()
                         .then(() => {
@@ -177,16 +182,16 @@ const main = function() {
     }
 
     const server = require('net').createServer(broker.handle)
-    server.listen(port, function () {
-        logger.info('server listening on port %s', port)
+    server.listen(config.port, function () {
+        logger.info('server listening on port %s', config.port)
     })
 
     ws.createServer({
         server: httpServer
     }, broker.handle)
 
-    httpServer.listen(wsPort, function () {
-        logger.info('websocket server listening on port %s', wsPort)
+    httpServer.listen(config.wsPort, function () {
+        logger.info('websocket server listening on port %s', config.wsPort)
     })
 
     broker.on('clientError', function (client, err) {
