@@ -1,0 +1,16 @@
+{
+    "logLevel": "debug",
+    "raptor": {
+        "url": "http://broker",
+        "username": "service",
+        "password": "s3rvice"
+    },
+    "mongodb": {
+        "persistence": {
+            "url": "mongodb://mongo/aedes"
+        },
+        "mq": {
+            "url": "mongodb://mongo/mqemitter?auto_reconnect=true"
+        }
+    }
+}
