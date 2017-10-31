@@ -33,7 +33,7 @@ const isAdmin = (u) => {
 
 const hasDevicePermission = (r, id, permission) => {
 
-    if(id === null || id === '+' || id === '#') {
+    if(id === '+' || id === '#') {
         return Promise.reject(new Error('Provided ID is not valid'))
     }
 
