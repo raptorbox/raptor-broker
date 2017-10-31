@@ -69,7 +69,7 @@ const checkTopic = (client, topic) => {
 
         switch (parts[0]) {
         case 'tree':
-            return hasDevicePermission(client.raptor, id, 'tree')
+            return hasDevicePermission(client.raptor, null, 'tree')
         case 'device':
             return hasDevicePermission(client.raptor, id, 'admin')
         case 'action':
@@ -91,7 +91,7 @@ const main = function() {
     let broker = aedes({
         mq: mq,
         persistence: persistence,
-        concurrency: 100,
+        concurrency: 5000,
         heartbeatInterval: 60000,
         connectTimeout: 30000,
     })
