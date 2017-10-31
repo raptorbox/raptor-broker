@@ -1,4 +1,4 @@
-PHONY: docker/build docker/push
+.PHONY: docker/build docker/push
 
 docker/build:
 	docker build . -t raptorbox/broker
