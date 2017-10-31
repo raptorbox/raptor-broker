@@ -3,5 +3,5 @@
 docker/build:
 	docker build . -t raptorbox/broker
 
-docker/push:
+docker/push: docker/build
 	docker push raptorbox/broker:latest

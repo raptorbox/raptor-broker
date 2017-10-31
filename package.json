@@ -14,7 +14,7 @@
     "aedes-persistence-mongodb": "^4.2.1",
     "mqemitter-mongodb": "^3.0.2",
     "mqtt": "^2.13.1",
-    "raptor-sdk": "^4.3.31",
+    "raptor-sdk": "^4.3.36",
     "winston": "^2.4.0"
   },
   "devDependencies": {
