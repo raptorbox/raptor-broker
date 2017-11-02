@@ -19,18 +19,19 @@ const getRaptor = () => {
             return api.Admin().Token().list()
                 .then((tokens) => {
                     tokens = tokens.filter((t) => t.name === config.token)
-                    if(tokens) {
+                    if(tokens.length) {
                         return Promise.resolve(tokens[0])
                     }
                     return api.Admin().Token().create({
                         name: config.token,
                         secret: config.token + Math.floor(Math.random*Date.now()),
                         expires: 0,
+                        enabled: true
                     })
                 })
-                .then((token) => {
+                .then((t) => {
                     api.setConfig({
-                        token: token.token,
+                        token: t.token,
                         url: api.getConfig().url
                     })
                     return api

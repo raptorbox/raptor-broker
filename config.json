@@ -7,7 +7,7 @@
         "username": "service",
         "password": "s3rvice"
     },
-    "token": "broker-token",
+    "token": "service-default",
     "mongodb": {
         "persistence": {
             "url": "mongodb://mongo/aedes?auto_reconnect=true"
