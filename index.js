@@ -98,9 +98,12 @@ const main = function() {
 
     broker.authenticate = function (client, username, password, callback) {
 
-        password = password.toString()
+        if(password) {
+        
+            password = password.toString()
 
-        logger.info('authenticate: %s:%s', username, password)
+            logger.info('authenticate: %s:%s', username, password)
+        }
 
         if((username == null || username.length === 0) || (password == null || password.length === 0)) {
             logger.info('Empty username or password')
