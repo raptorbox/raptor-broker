@@ -107,6 +107,8 @@ const checkTopic = (client, topic) => {
 
 const main = function() {
 
+    logger.level = process.env.LOG_LEVEL || 'info'
+
     let broker = aedes({
         mq: mq,
         persistence: persistence,
@@ -214,7 +216,10 @@ const main = function() {
 
     broker.on('clientError', function (client, err) {
         if (client) {
-            logger.warn('client error', client.id, err.message, err.stack)
+            logger.warn('client error: %s', err.message)
+            logger.debug('client: %s', client)
+            logger.debug(err.stack)
+
         }
     })
 
