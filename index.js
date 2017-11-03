@@ -16,7 +16,26 @@ const api = new Raptor(config.raptor)
 const getRaptor = () => {
     return api.Auth().login()
         .then(() => {
-            return api
+            return api.Admin().Token().list()
+                .then((tokens) => {
+                    tokens = tokens.filter((t) => t.name === config.token)
+                    if(tokens.length) {
+                        return Promise.resolve(tokens[0])
+                    }
+                    return api.Admin().Token().create({
+                        name: config.token,
+                        secret: config.token + Math.floor(Math.random*Date.now()),
+                        expires: 0,
+                        enabled: true
+                    })
+                })
+                .then((t) => {
+                    api.setConfig({
+                        token: t.token,
+                        url: api.getConfig().url
+                    })
+                    return api
+                })
         })
 }
 
