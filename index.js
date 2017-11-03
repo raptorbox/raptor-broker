@@ -71,13 +71,13 @@ const checkTopic = (client, topic) => {
     if(isLocalUser(client.raptor.getConfig()) ||
         isAdmin(client.raptor.Auth().getUser())
     ) {
-        logger.info('Local user topic allowed')
+        logger.debug('Local user topic allowed')
         return Promise.resolve()
     }
 
     return client.raptor.Auth().login().then(() => {
 
-        logger.info('Validating topic %s', topic)
+        logger.debug('Validating topic %s', topic)
 
         const parts = topic.split('/')
 
@@ -128,7 +128,7 @@ const main = function() {
         logger.debug('authenticate: %s:%s', username, password)
 
         if (isLocalUser({username, password})) {
-            logger.info('Local user login')
+            logger.debug('Local user login')
             client.raptor = api
             return callback(null, true)
         }
@@ -170,7 +170,7 @@ const main = function() {
     }
 
     broker.authorizePublish = function (client, packet, callback) {
-        logger.info('authorizePublish: %s', packet.topic)
+        logger.debug('authorizePublish: %s', packet.topic)
         checkTopic(client, packet.topic)
             .then(() => {
                 callback(null)
@@ -181,7 +181,7 @@ const main = function() {
     }
 
     broker.authorizeSubscribe = function (client, sub, callback) {
-        logger.info('authorizeSubscribe: %s', sub.topic)
+        logger.debug('authorizeSubscribe: %s', sub.topic)
         checkTopic(client, sub.topic)
             .then(() => {
                 callback(null, sub)
@@ -192,12 +192,12 @@ const main = function() {
     }
 
     broker.authorizeForward = function (clientId, packet) {
-        logger.info('authorizeForward: %s', packet.topic)
+        logger.debug('authorizeForward: %s', packet.topic)
         return packet
     }
 
     broker.published = function (packet, client, done) {
-        logger.info('published %s', packet.topic)
+        logger.debug('published %s', packet.topic)
         done()
     }
 
@@ -211,14 +211,14 @@ const main = function() {
     }, broker.handle)
 
     httpServer.listen(config.wsPort, function () {
-        logger.debug('websocket server listening on port %s', config.wsPort)
+        logger.info('websocket server listening on port %s', config.wsPort)
     })
 
     broker.on('clientError', function (client, err) {
         if (client) {
             logger.warn('client error: %s', err.message)
-            logger.debug('client: %s', client)
-            logger.debug(err.stack)
+            // logger.debug('client [id:%s]', client.id)
+            // logger.debug(err.stack)
 
         }
     })
