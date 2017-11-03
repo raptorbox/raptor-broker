@@ -117,17 +117,13 @@ const main = function() {
 
     broker.authenticate = function (client, username, password, callback) {
 
-        if(password) {
-        
-            password = password.toString()
-
-            logger.info('authenticate: %s:%s', username, password)
-        }
-
         if((username == null || username.length === 0) || (password == null || password.length === 0)) {
-            logger.info('Empty username or password')
+            logger.debug('Empty username or password')
             return callback(null, false)
         }
+
+        password = password.toString()
+        logger.debug('authenticate: %s:%s', username, password)
 
         if (isLocalUser({username, password})) {
             logger.info('Local user login')
@@ -139,7 +135,7 @@ const main = function() {
             .then((api) => {
                 const url = config.raptor.url
                 if (username.length <= 3) {
-                    logger.info('Token login')
+                    logger.debug('Token login')
                     const r = new Raptor({
                         url, token: password
                     })
@@ -149,7 +145,7 @@ const main = function() {
                             return Promise.resolve()
                         })
                 } else {
-                    logger.info('Username and password login')
+                    logger.debug('Username and password login')
                     const r = new Raptor({
                         url, username,
                         password: password
@@ -162,11 +158,11 @@ const main = function() {
                 }
             })
             .then(() => {
-                logger.info('Login ok')
+                logger.debug('Login ok')
                 callback(null, true)
             })
             .catch((e) => {
-                logger.info('Login failed: %s', e.message)
+                logger.warn('Login failed: %s', e.message)
                 callback(e, false)
             })
     }
@@ -213,27 +209,29 @@ const main = function() {
     }, broker.handle)
 
     httpServer.listen(config.wsPort, function () {
-        logger.info('websocket server listening on port %s', config.wsPort)
+        logger.debug('websocket server listening on port %s', config.wsPort)
     })
 
     broker.on('clientError', function (client, err) {
-        logger.info('client error', client.id, err.message, err.stack)
+        if (client) {
+            logger.warn('client error', client.id, err.message, err.stack)
+        }
     })
 
     broker.on('publish', function (packet, client) {
         if (client) {
-            logger.info('message from client', client.id)
+            logger.debug('message from client', client.id)
         }
     })
 
     broker.on('subscribe', function (subscriptions, client) {
         if (client) {
-            logger.info('subscribe from client', subscriptions, client.id)
+            logger.debug('subscribe from client', subscriptions, client.id)
         }
     })
 
     broker.on('client', function (client) {
-        logger.info('new client', client.id)
+        logger.debug('new client', client.id)
     })
 
 }
