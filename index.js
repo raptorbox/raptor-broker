@@ -18,7 +18,8 @@ const getRaptor = () => {
         .then(() => {
             return api.Admin().Token().list()
                 .then((tokens) => {
-                    tokens = tokens.filter((t) => t.name === config.token)
+                    tokens = tokens.content ? tokens.content : tokens
+                    tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
                     if(tokens.length) {
                         return Promise.resolve(tokens[0])
                     }
@@ -47,10 +48,10 @@ const isLocalUser = (credentials) => {
 const isAdmin = (u) => {
     return (u && u.roles)
         && (u.roles.indexOf('admin') > -1
-            || u.roles.indexOf('super_admin') > -1)
+            || u.roles.indexOf('service') > -1)
 }
 
-const hasDevicePermission = (r, id, permission) => {
+const hasPermission = (r, type, permission, id) => {
 
     if(id === '+' || id === '#') {
         return Promise.reject(new Error('Provided ID is not valid'))
@@ -80,28 +81,26 @@ const checkTopic = (client, topic) => {
         logger.debug('Validating topic %s', topic)
 
         const parts = topic.split('/')
-
+        let permission = 'read'
+        const type = parts[0]
         const id = parts[1]
         if (!id) {
             return Promise.reject(new Error('Missing id in topic ' + topic ))
         }
 
-        switch (parts[0]) {
-        case 'tree':
-            return hasDevicePermission(client.raptor, null, 'tree')
-        case 'device':
-            return hasDevicePermission(client.raptor, id, 'admin')
+        switch (type) {
+        // case 'tree':
+        // case 'device':
+        // case 'token':
+        // case 'user':
+        // case 'role':
         case 'action':
-            return hasDevicePermission(client.raptor, id, 'execute')
+            permission = 'execute'
         case 'stream':
-            return hasDevicePermission(client.raptor, id, 'pull')
-        case 'token':
-        case 'user':
-            return isAdmin(client.raptor.Auth().getUser()) ?
-                Promise.resolve() : Promise.reject(new Error('Not an admin'))
+            permission = 'pull'
         }
 
-        return Promise.reject(new Error('Topic unknown: ' + parts[0]))
+        return hasPermission(client.raptor, type, permission, id)
     })
 }
 
