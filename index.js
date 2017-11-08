@@ -18,7 +18,7 @@ const getRaptor = () => {
         .then(() => {
             return api.Admin().Token().list()
                 .then((tokens) => {
-                    if(tokens.getContent()) {
+                    if(tokens && tokens.getContent) {
                         tokens = tokens.getContent()
                     }
                     tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
