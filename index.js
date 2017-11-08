@@ -18,7 +18,9 @@ const getRaptor = () => {
         .then(() => {
             return api.Admin().Token().list()
                 .then((tokens) => {
-                    tokens = tokens.content ? tokens.content : tokens
+                    if(tokens.getContent()) {
+                        tokens = tokens.getContent()
+                    }
                     tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
                     if(tokens.length) {
                         return Promise.resolve(tokens[0])
@@ -57,7 +59,7 @@ const hasPermission = (r, type, permission, id) => {
         return Promise.reject(new Error('Provided ID is not valid'))
     }
 
-    return r.Admin().User().isAuthorized(id, r.Auth().getUser().uuid, permission)
+    return r.Admin().User().isAuthorized(id, r.Auth().getUser().id, permission)
         .then((res) => {
             return res.result ? Promise.resolve() : Promise.reject(new Error('Not authorized'))
         })
@@ -96,8 +98,10 @@ const checkTopic = (client, topic) => {
         // case 'role':
         case 'action':
             permission = 'execute'
+            break
         case 'stream':
             permission = 'pull'
+            break
         }
 
         return hasPermission(client.raptor, type, permission, id)
