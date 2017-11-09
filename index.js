@@ -2,12 +2,18 @@
 const config = require(process.env.CONFIG || './config.json')
 
 const aedes = require('aedes')
-const mongodb = require('mqemitter-mongodb')
 const Raptor = require('raptor-sdk')
 const logger = require('winston')
 
-const persistence = require('aedes-persistence-mongodb')(config.mongodb.persistence)
-const mq = mongodb(config.mongodb.mq)
+
+if(config.redis.persistence.ttl) {
+    config.redis.persistence.packetTTL =  function (packet) {
+        return config.redis.persistence.ttl
+    }
+}
+
+const persistence = require('aedes-persistence-redis')(config.redis.persistence)
+const mq = require('mqemitter-redis')(config.redis.mq)
 const httpServer = require('http').createServer()
 const ws = require('websocket-stream')
 

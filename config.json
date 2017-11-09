@@ -15,5 +15,19 @@
         "mq": {
             "url": "mongodb://mongo/mqemitter?auto_reconnect=true"
         }
+    },
+    "redis": {
+        "persistence": {
+            "port": 6379,
+            "host": "redis",
+            "family": 4,
+            "db": 0,
+            "maxSessionDelivery": 1000,
+            "ttl": 10
+        },
+        "mq": {
+            "host": "redis",
+            "db": 1,
+        }
     }
 }
