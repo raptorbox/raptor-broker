@@ -13,8 +13,8 @@ if(config.redis.persistence.ttl) {
 }
 
 const persistence = require('aedes-persistence-redis')(config.redis.persistence)
+const mq = require('mqemitter-redis')(config.redis.mq)
 
-const mq = mongodb(config.mongodb.mq)
 const httpServer = require('http').createServer()
 const ws = require('websocket-stream')
 

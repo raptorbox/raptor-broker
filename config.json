@@ -24,6 +24,10 @@
             "db": 0,
             "maxSessionDelivery": 1000,
             "ttl": 10
+        },
+        "mq": {
+            "host": "redis",
+            "db": 1
         }
     }
 }
