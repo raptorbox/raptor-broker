@@ -6,7 +6,14 @@ const mongodb = require('mqemitter-mongodb')
 const Raptor = require('raptor-sdk')
 const logger = require('winston')
 
-const persistence = require('aedes-persistence-mongodb')(config.mongodb.persistence)
+if(config.redis.persistence.ttl) {
+    config.redis.persistence.packetTTL =  function (packet) {
+        return config.redis.persistence.ttl
+    }
+}
+
+const persistence = require('aedes-persistence-redis')(config.redis.persistence)
+
 const mq = mongodb(config.mongodb.mq)
 const httpServer = require('http').createServer()
 const ws = require('websocket-stream')
