@@ -18,7 +18,7 @@ const getRaptor = () => {
         .then(() => {
             return api.Admin().Token().list()
                 .then((tokens) => {
-                    tokens = tokens.filter((t) => t.name === config.token)
+                    tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
                     if(tokens.length) {
                         return Promise.resolve(tokens[0])
                     }
