@@ -143,7 +143,7 @@ const main = function() {
         }
 
         return getRaptor()
-            .then((api) => {
+            .then(() => {
                 const url = config.raptor.url
                 if (username.length <= 3) {
                     logger.debug('Token login')
