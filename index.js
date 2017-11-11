@@ -27,7 +27,6 @@ const getRaptor = () => {
                     if(tokens && tokens.getContent) {
                         tokens = tokens.getContent()
                     }
-                    console.warn(tokens)
                     tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
                     if(tokens.length) {
                         return Promise.resolve(tokens[0])
