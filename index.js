@@ -2,12 +2,11 @@
 const config = require(process.env.CONFIG || './config.json')
 
 const aedes = require('aedes')
-const mongodb = require('mqemitter-mongodb')
 const Raptor = require('raptor-sdk')
 const logger = require('winston')
 
 if(config.redis.persistence.ttl) {
-    config.redis.persistence.packetTTL =  function (packet) {
+    config.redis.persistence.packetTTL =  function (/*packet*/) {
         return config.redis.persistence.ttl
     }
 }
@@ -144,7 +143,7 @@ const main = function() {
         }
 
         return getRaptor()
-            .then((api) => {
+            .then(() => {
                 const url = config.raptor.url
                 if (username.length <= 3) {
                     logger.debug('Token login')
