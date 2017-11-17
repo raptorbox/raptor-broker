@@ -62,6 +62,7 @@ const isAdmin = (u) => {
 const hasPermission = (r, type, permission, id) => {
 
     if(id === '+' || id === '#') {
+        logger.warn('Invalid id [%s %s] %s', type, permission, id)
         return Promise.reject(new Error('Provided ID is not valid'))
     }
 

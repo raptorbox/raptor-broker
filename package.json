@@ -4,6 +4,7 @@
   "description": "Raptor MQTT broker",
   "main": "index.js",
   "scripts": {
+    "start": "node ./index.js",
     "release-major": "./node_modules/standard-version/bin/cli.js",
     "release": "./node_modules/standard-version/bin/cli.js -- --release-as minor"
   },
