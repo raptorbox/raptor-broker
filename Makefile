@@ -2,7 +2,7 @@
 
 name := raptorbox/broker
 
-gittag := $(shell git describe --tag)
+gittag := $(shell git describe --tag --always)
 tag := $(shell echo ${gittag} | cut -d'-' -f 1)
 basetag := $(shell echo ${gittag} | cut -d'.' -f 1)
 
