@@ -59,17 +59,21 @@ const isAdmin = (u) => {
             || u.roles.indexOf('service') > -1)
 }
 
-const hasPermission = (r, type, permission, id) => {
+const hasPermission = ({r, type, permission, subjectId}) => {
 
     if(id === '+' || id === '#') {
         logger.warn('Invalid id [%s %s] %s', type, permission, id)
         return Promise.reject(new Error('Provided ID is not valid'))
     }
 
-    return r.Admin().User().isAuthorized(id, r.Auth().getUser().id, permission)
-        .then((res) => {
-            return res.result ? Promise.resolve() : Promise.reject(new Error('Not authorized'))
-        })
+    return r.Admin().User().can({
+        userId: r.Auth().getUser().id,
+        type,
+        subjectId,
+        permission,
+    }).then((res) => {
+        return res.result ? Promise.resolve() : Promise.reject(new Error('Not authorized'))
+    })
 }
 
 const checkTopic = (client, topic) => {
@@ -111,7 +115,12 @@ const checkTopic = (client, topic) => {
             break
         }
 
-        return hasPermission(client.raptor, type, permission, id)
+        return hasPermission({
+            r: client.raptor,
+            subjectId: id,
+            type,
+            permission,
+        })
     })
 }
 
@@ -129,12 +138,13 @@ const main = function() {
 
     broker.authenticate = function (client, username, password, callback) {
 
+        password = password ? password.toString() : null
+
         if((username == null || username.length === 0) || (password == null || password.length === 0)) {
             logger.debug('Empty username or password')
             return callback(null, false)
         }
 
-        password = password.toString()
         logger.debug('authenticate: %s:%s', username, password)
 
         if (isLocalUser({username, password})) {
