@@ -15,7 +15,7 @@
     "aedes-persistence-redis": "^5.1.0",
     "mqemitter-redis": "^2.2.0",
     "mqtt": "^2.13.1",
-    "raptor-sdk": "^5.0.10",
+    "raptor-sdk": "^5.0.12",
     "winston": "^2.4.0"
   },
   "devDependencies": {
