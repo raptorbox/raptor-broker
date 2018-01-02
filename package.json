@@ -1,9 +1,10 @@
 {
   "name": "raptor-broker",
-  "version": "1.0.11",
+  "version": "5.0.9",
   "description": "Raptor MQTT broker",
   "main": "index.js",
   "scripts": {
+    "start": "node ./index.js",
     "release-major": "./node_modules/standard-version/bin/cli.js",
     "release": "./node_modules/standard-version/bin/cli.js -- --release-as minor"
   },
@@ -13,8 +14,8 @@
     "aedes": "^0.30.1",
     "aedes-persistence-redis": "^5.1.0",
     "mqemitter-redis": "^2.2.0",
-    "mqtt": "^2.13.1",
-    "raptor-sdk": "^4.3.38",
+    "mqtt": "^2.15.0",
+    "raptor-sdk": "^5.0.17",
     "winston": "^2.4.0"
   },
   "devDependencies": {

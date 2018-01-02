@@ -2,18 +2,19 @@
 const config = require(process.env.CONFIG || './config.json')
 
 const aedes = require('aedes')
+const mongodb = require('mqemitter-mongodb')
 const Raptor = require('raptor-sdk')
 const logger = require('winston')
 
-
 if(config.redis.persistence.ttl) {
-    config.redis.persistence.packetTTL =  function (packet) {
+    config.redis.persistence.packetTTL =  function (/*packet*/) {
         return config.redis.persistence.ttl
     }
 }
 
 const persistence = require('aedes-persistence-redis')(config.redis.persistence)
 const mq = require('mqemitter-redis')(config.redis.mq)
+
 const httpServer = require('http').createServer()
 const ws = require('websocket-stream')
 
@@ -24,6 +25,9 @@ const getRaptor = () => {
         .then(() => {
             return api.Admin().Token().list()
                 .then((tokens) => {
+                    if(tokens && tokens.getContent) {
+                        tokens = tokens.getContent()
+                    }
                     tokens = tokens ? tokens.filter((t) => t.name === config.token) : []
                     if(tokens.length) {
                         return Promise.resolve(tokens[0])
@@ -53,19 +57,24 @@ const isLocalUser = (credentials) => {
 const isAdmin = (u) => {
     return (u && u.roles)
         && (u.roles.indexOf('admin') > -1
-            || u.roles.indexOf('super_admin') > -1)
+            || u.roles.indexOf('service') > -1)
 }
 
-const hasDevicePermission = (r, id, permission) => {
+const hasPermission = ({r, type, permission, subjectId}) => {
 
     if(id === '+' || id === '#') {
+        logger.warn('Invalid id [%s %s] %s', type, permission, id)
         return Promise.reject(new Error('Provided ID is not valid'))
     }
 
-    return r.Admin().User().isAuthorized(id, r.Auth().getUser().uuid, permission)
-        .then((res) => {
-            return res.result ? Promise.resolve() : Promise.reject(new Error('Not authorized'))
-        })
+    return r.Admin().User().can({
+        userId: r.Auth().getUser().id,
+        type,
+        subjectId,
+        permission,
+    }).then((res) => {
+        return res.result ? Promise.resolve() : Promise.reject(new Error('Not authorized'))
+    })
 }
 
 const checkTopic = (client, topic) => {
@@ -86,28 +95,33 @@ const checkTopic = (client, topic) => {
         logger.debug('Validating topic %s', topic)
 
         const parts = topic.split('/')
-
+        let permission = 'read'
+        const type = parts[0]
         const id = parts[1]
         if (!id) {
             return Promise.reject(new Error('Missing id in topic ' + topic ))
         }
 
-        switch (parts[0]) {
-        case 'tree':
-            return hasDevicePermission(client.raptor, null, 'tree')
-        case 'device':
-            return hasDevicePermission(client.raptor, id, 'admin')
+        switch (type) {
+        // case 'tree':
+        // case 'device':
+        // case 'token':
+        // case 'user':
+        // case 'role':
         case 'action':
-            return hasDevicePermission(client.raptor, id, 'execute')
+            permission = 'execute'
+            break
         case 'stream':
-            return hasDevicePermission(client.raptor, id, 'pull')
-        case 'token':
-        case 'user':
-            return isAdmin(client.raptor.Auth().getUser()) ?
-                Promise.resolve() : Promise.reject(new Error('Not an admin'))
+            permission = 'pull'
+            break
         }
 
-        return Promise.reject(new Error('Topic unknown: ' + parts[0]))
+        return hasPermission({
+            r: client.raptor,
+            subjectId: id,
+            type,
+            permission,
+        })
     })
 }
 
@@ -124,6 +138,8 @@ const main = function() {
     })
 
     broker.authenticate = function (client, username, password, callback) {
+
+        password = password ? password.toString() : null
 
         if((username == null || username.length === 0) || (password == null || password.length === 0)) {
             logger.debug('Empty username or password')
