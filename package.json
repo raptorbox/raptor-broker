@@ -1,6 +1,6 @@
 {
   "name": "raptor-broker",
-  "version": "5.0.8",
+  "version": "5.0.9",
   "description": "Raptor MQTT broker",
   "main": "index.js",
   "scripts": {
