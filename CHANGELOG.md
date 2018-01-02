@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.11"></a>
+## [5.0.11](https://github.com/raptorbox/raptor-broker/compare/v5.0.10...v5.0.11) (2018-01-02)
+
+
+
 <a name="5.0.10"></a>
 ## [5.0.10](https://github.com/raptorbox/raptor-broker/compare/v5.0.9...v5.0.10) (2018-01-02)
 
