@@ -2,7 +2,6 @@
 const config = require(process.env.CONFIG || './config.json')
 
 const aedes = require('aedes')
-const mongodb = require('mqemitter-mongodb')
 const Raptor = require('raptor-sdk')
 const logger = require('winston')
 
